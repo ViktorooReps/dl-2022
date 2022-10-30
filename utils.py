@@ -1,12 +1,13 @@
 import h5py
 import numpy as np
 import os
-from PIL import Image
 import matplotlib.pyplot as plt
 import torch
 
 from abc import ABC, abstractmethod
 from typing import Tuple
+
+from PIL import Image
 
 
 class storage_class(ABC):
@@ -38,7 +39,7 @@ class storage_class(ABC):
         pass
     
     @abstractmethod
-    def __getitem__(self, idx: int) -> Tuple[Image, Image]:
+    def __getitem__(self, idx: int) -> Tuple[Image.Image, Image.Image]:
         """
         Вернуть пару (изображение, маска) по индексу `idx`
         """
