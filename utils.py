@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 import torch
 
 from abc import ABC, abstractmethod
-from typing import Type, Union
+from typing import Tuple
 
 
 class storage_class(ABC):
@@ -24,7 +24,7 @@ class storage_class(ABC):
         pass
     
     @abstractmethod
-    def append(self, input_chunk: np.array, target_chunk: np.array) -> None:
+    def append(self, input_chunk: np.ndarray, target_chunk: np.ndarray) -> None:
         """
         Добавить в датасет блок изображений `input_chunk` и блок масок `target_chunk`
         """
@@ -38,7 +38,7 @@ class storage_class(ABC):
         pass
     
     @abstractmethod
-    def __getitem__(self, idx: int) -> tuple[Image, Image]:
+    def __getitem__(self, idx: int) -> Tuple[Image, Image]:
         """
         Вернуть пару (изображение, маска) по индексу `idx`
         """
@@ -156,7 +156,7 @@ class storage_raw(storage_class):
         return input, target
 
 
-def renumerate_target(target: np.array, label: int) -> np.array:
+def renumerate_target(target: np.ndarray, label: int) -> np.ndarray:
     """
     Перенумеровываем маски сегментации.
     В исходном датасете следующие метки `{1: объект, 2: фон, 3: ignore_index}`, где объект
@@ -182,7 +182,7 @@ def colorize(data):
 
 
 # Функция для отрисовки картинок
-def draw(pair: tuple[torch.tensor, torch.tensor], t_dict: dict, prediction: torch.tensor = None, log: bool = False):
+def draw(pair: Tuple[torch.tensor, torch.tensor], t_dict: dict, prediction: torch.tensor = None, log: bool = False):
     """
     `pair` содержит пару (изображение, сегментационная маска)
     `prediction` содержит предсказанную моделью сегментационную маску
