@@ -4,21 +4,21 @@ import os
 import matplotlib.pyplot as plt
 import torch
 
-from abc import ABC, abstractmethod
+from abc import abstractmethod, ABCMeta
 from typing import Tuple
 
 from PIL import Image
+from torch.utils.data import Dataset
 
 
-class Storage(ABC):
+class Storage(Dataset, metaclass=ABCMeta):
     def __init__(self, config: dict):
         self.config = config
         self.pos = 0
         self.__locked = False
-        
-    @property
+
     @abstractmethod
-    def dataset_size(self) -> int:
+    def __len__(self) -> int:
         """
         Вернуть количество пар (изображение, маска) в датасете
         """
@@ -53,9 +53,8 @@ class StorageHDF5(Storage):
         self.dataset = h5py.File(f'{config["annotation_file"].rstrip(".txt")}.h5', 'a')          
         self.dataset.create_dataset("input", shape=(config["dataset_size"], *config["target_shape"], 3), dtype=np.uint8)
         self.dataset.create_dataset("target",  shape=(config["dataset_size"], *config["target_shape"]), dtype=np.uint8)
-        
-    @property
-    def dataset_size(self):
+
+    def __len__(self) -> int:
         assert self.dataset["input"].shape[:-1] == self.dataset["target"].shape
         assert self.dataset["target"].shape[0] == self.config["dataset_size"]
         return self.config["dataset_size"]
@@ -89,9 +88,8 @@ class StorageMemMap(Storage):
 
         self.input = np.memmap(self.input_path, mode='w+', dtype=np.uint8, shape=(config["dataset_size"], *config["target_shape"], 3))
         self.target = np.memmap(self.target_path, mode='w+', dtype=np.uint8, shape=(config["dataset_size"], *config["target_shape"]))
-    
-    @property
-    def dataset_size(self):
+
+    def __len__(self) -> int:
         assert self.input.shape[:-1] == self.target.shape
         assert self.input.shape[0] == self.config["dataset_size"]
         return self.config["dataset_size"]
@@ -129,9 +127,8 @@ class StorageRaw(Storage):
         os.makedirs(path, exist_ok=True)
         os.makedirs(self.input_path, exist_ok=False)
         os.makedirs(self.target_path, exist_ok=False)
-    
-    @property
-    def dataset_size(self):
+
+    def __len__(self) -> int:
         assert len(os.listdir(self.input_path)) == len(os.listdir(self.target_path))
         assert len(os.listdir(self.input_path)) == self.config["dataset_size"]
         return self.config["dataset_size"]
