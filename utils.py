@@ -10,7 +10,7 @@ from typing import Tuple
 from PIL import Image
 
 
-class storage_class(ABC):
+class Storage(ABC):
     def __init__(self, config: dict):
         self.config = config
         self.pos = 0
@@ -46,7 +46,7 @@ class storage_class(ABC):
         pass
 
     
-class storage_hdf5(storage_class):
+class StorageHDF5(Storage):
     def __init__(self, config):
         super().__init__(config)
         
@@ -78,7 +78,7 @@ class storage_hdf5(storage_class):
         return Image.fromarray(self.dataset["input"][idx]), Image.fromarray(self.dataset["target"][idx])
 
     
-class storage_memmap(storage_class):
+class StorageMemMap(Storage):
     def __init__(self, config):
         super().__init__(config)
         
@@ -116,7 +116,7 @@ class storage_memmap(storage_class):
         return Image.fromarray(self.input[idx]), Image.fromarray(self.target[idx])
 
     
-class storage_raw(storage_class):
+class StorageRaw(Storage):
     def __init__(self, config):
         super().__init__(config)
                                  
